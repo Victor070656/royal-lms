@@ -31,7 +31,7 @@ Welcome to the Learning Management System (LMS) built with PHP. This system allo
 ## Installation
 Clone the Repository:
 
-~ git clone https://github.com/your-repo/lms-php.git
+~ git clone https://github.com/Victor070656/royal-lms.git
 
 Navigate to the Project Directory:
 
