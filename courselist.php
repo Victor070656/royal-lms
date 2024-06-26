@@ -32,6 +32,13 @@ session_start();
   <link rel="stylesheet" href="./w3.css" />
 
   <title>Royal-Educity</title>
+  <style>
+    .truncate {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
 </head>
 
 <body class="preloader-visible" data-barba="wrapper">
@@ -211,7 +218,20 @@ session_start();
               $no_lesson = 0;
               while ($course = mysqli_fetch_assoc($getCourses)) {
                 $course_id = $course["course_id"];
+                $teacher_id = $course["teacher_id"];
                 $getSections = mysqli_query($conn, "SELECT * FROM `sections` WHERE `course_id` = '$course_id'");
+                $getTeacher = mysqli_query($conn, "SELECT * FROM `teachers` WHERE `id`='$teacher_id'");
+                $teacher = mysqli_fetch_assoc($getTeacher);
+
+                $no_rating = 0;
+                $total_rating = 0;
+                $getReviews = mysqli_query($conn, "SELECT * FROM `reviews` WHERE `course_id`='$course_id'");
+                if (mysqli_num_rows($getReviews) > 0) {
+                  while ($reviews = mysqli_fetch_assoc($getReviews)) {
+                    $total_rating += $reviews["rating"];
+                  }
+                  $no_rating = $total_rating / mysqli_num_rows($getReviews);
+                }
                 if (mysqli_num_rows($getSections) > 0) {
                   while ($section = mysqli_fetch_assoc($getSections)) {
                     $section_id = $section["id"];
@@ -238,17 +258,17 @@ session_start();
                       <div class="h-100 pt-15 w3-padding-small">
                         <div class="d-flex items-center">
                           <div class="text-14 lh-1 text-yellow-1 mr-10">
-                            4.5
+                            <?= round($no_rating, 1); ?>
                           </div>
                           <div class="d-flex x-gap-5 items-center">
                             <div class="icon-star text-9 text-yellow-1"></div>
 
                           </div>
-                          <div class="text-13 lh-1 ml-10">(1991)</div>
+                          <div class="text-13 lh-1 ml-10">(<?= $getReviews->num_rows; ?>)</div>
                         </div>
 
-                        <div class="text-17 lh-15 fw-500 text-dark-1 mt-10">
-                          <?= $course["course_name"]; ?>
+                        <div class="text-17 lh-15 fw-500 text-dark-1 mt-10 truncate">
+                          <span class=""><?= $course["course_name"]; ?></span>
                         </div>
 
                         <div class="d-flex x-gap-10 items-center pt-10">
@@ -272,7 +292,9 @@ session_start();
                         <div class="coursesCard-footer">
                           <div class="coursesCard-footer__author">
 
-                            <div>Ali Tufan</div>
+                            <div class="truncate">
+                              <span class=""><?= $teacher["first"] . " " . $teacher["last"]; ?></span>
+                            </div>
                           </div>
 
                           <div class="d-flex items-center">

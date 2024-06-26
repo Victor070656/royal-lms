@@ -58,6 +58,12 @@ session_start();
     .alt:hover i::before {
       color: black;
     }
+
+    .truncate {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   </style>
 </head>
 
@@ -364,9 +370,12 @@ session_start();
                     $no_lesson = 0;
                     while ($course = mysqli_fetch_assoc($getCourses)) {
                       $course_id = $course["course_id"];
+                      $teacher_id = $course["teacher_id"];
                       $no_rating = 0;
                       $total_rating = 0;
                       $getReviews = mysqli_query($conn, "SELECT * FROM `reviews` WHERE `course_id`='$course_id'");
+                      $getTeacher = mysqli_query($conn, "SELECT * FROM `teachers` WHERE `id`='$teacher_id'");
+                      $teacher = mysqli_fetch_assoc($getTeacher);
                       if (mysqli_num_rows($getReviews) > 0) {
                         while ($reviews = mysqli_fetch_assoc($getReviews)) {
                           $total_rating += $reviews["rating"];
@@ -409,8 +418,8 @@ session_start();
                                 <div class="text-13 lh-1 ml-10">(<?= $getReviews->num_rows; ?>)</div>
                               </div>
 
-                              <div class="text-17 lh-15 fw-500 text-dark-1 mt-10">
-                                <?= $course["course_name"]; ?>
+                              <div class="text-17 lh-15 fw-500 text-dark-1 mt-10 truncate ">
+                                <span class=""><?= $course["course_name"]; ?></span>
                               </div>
 
                               <div class="d-flex x-gap-10 items-center pt-10">
@@ -434,7 +443,9 @@ session_start();
                               <div class="coursesCard-footer">
                                 <div class="coursesCard-footer__author">
 
-                                  <div>Ali Tufan</div>
+                                  <div class="truncate">
+                                    <span class=""><?= $teacher["first"] . " " . $teacher["last"]; ?></span>
+                                  </div>
                                 </div>
 
                                 <div class="d-flex items-center">
