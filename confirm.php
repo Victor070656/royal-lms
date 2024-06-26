@@ -1,6 +1,25 @@
 <?php
-include "../config.php";
+include("config.php");
+include("function.php");
 session_start();
+
+if (!isset($_GET["email"])) {
+  echo "<script>location.href='forgot.php'</script>";
+}
+
+$email = htmlspecialchars($_GET["email"]);
+$checkUser = mysqli_query($conn, "SELECT * FROM `users` WHERE `email` = '$email' ");
+
+
+if ($email == "") {
+  echo "<script>location.href='forgot.php'</script>";
+}
+// if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+//   echo "<script>location.href='forgot.php'</script>";
+// }
+
+$newCode = rand(100000, 999999);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,6 +29,7 @@ session_start();
   <!-- Required meta tags -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="./img/logo/logo2.png">
 
   <!-- Google fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com/" />
@@ -50,49 +70,50 @@ session_start();
               <div class="col-xl-6 col-lg-8 mx-auto">
                 <div class="px-50 py-50 md:px-25 md:py-25 bg-white shadow-1 rounded-16">
                   <div class="py-3">
-                    <h6><a href="../index.php"><i class="text-13 icon-chevron-left mr-5"></i>Home</a></h6>
+                    <h6><a href="index.php"><i class="text-13 icon-chevron-left mr-5"></i>Home</a></h6>
                   </div>
-                  <h3 class="text-30 lh-13">Login</h3>
+                  <h3 class="text-30 lh-13">Confirmation Code</h3>
                   <p class="mt-10">
-                    Don't have an account yet?
-                    <a href="signup.php" class="text-purple-1">Sign up for free</a>
+                    We sent you a confirmation code. If you didn't receive it, please check your spam folder.
                   </p>
 
                   <form class="contact-form row y-gap-20 pt-30" method="post">
                     <div class="col-12">
-                      <label class="text-16 lh-1 fw-500 text-dark-1 mb-10">Email</label>
-                      <input type="email" name="email" placeholder="Email" />
+                      <label class="text-16 lh-1 fw-500 text-dark-1 mb-10">Code</label>
+                      <input type="number" name="code" placeholder="123456" class="form-control" />
                     </div>
                     <div class="col-12">
-                      <label class="text-16 lh-1 fw-500 text-dark-1 mb-10">Password</label>
-                      <input type="password" name="password" placeholder="Password" />
-                    </div>
-                    <div class="col-12">
-                      <a href="forgot.php" class="text-16 lh-1 fw-500 text-dark-1 mb-10">Forgot your password?</a>
-                    </div>
-                    <div class="col-12">
-                      <button type="submit" name="login" id="submit" class="button -md -green-1 text-dark-1 fw-500 w-1/1">
-                        Login
+                      <button type="submit" name="confirm" id="submit" class="button -md -green-1 text-dark-1 fw-500 w-1/1">
+                        Confirm Code
                       </button>
                     </div>
                     <?php
-                    if (isset($_POST["login"])) {
-                      $email = $_POST["email"];
-                      $password = $_POST["password"];
-                      $sql = "SELECT * FROM `teachers` WHERE `email` = '$email' AND `password` = '$password'";
+                    if (isset($_POST["confirm"])) {
+                      $code = $_POST["code"];
+                      $sql = "SELECT * FROM `users` WHERE `email` = '$email' AND `code` = '$code'";
                       $result = mysqli_query($conn, $sql);
+
+
                       if (mysqli_num_rows($result) > 0) {
-                        $row = mysqli_fetch_assoc($result);
-                        $_SESSION["teacher"] = $row;
-                        if (isset($_SESSION["teacher"]) && $_SESSION["teacher"]["validity"] == "inactive") {
-                          session_unset();
-                          session_destroy();
-                          echo "<script>alert('Account not activated. Contact support!'); location.href='../'</script>";
-                        } else {
-                          echo "<script>alert('Login Successful!'); location.href='./'</script>";
-                        }
+                        echo "<script>alert('Code confirmed ✅'); location.href='new-password.php?email=$email&code=$code'</script>";
                       } else {
-                        echo "<script>alert('Login Failed!');</script>";
+                        echo "<script>alert('Failed!');</script>";
+                      }
+                    }
+                    ?>
+                  </form>
+                  <form method="post" class="text-center mt-4">
+                    <button type="submit" class="btn btn-link" name="resend"><u>Resend Code</u></button>
+                    <?php
+                    if (isset($_POST["resend"])) {
+                      $updateCode = mysqli_query($conn, "UPDATE `users` SET `code` = '$newCode' WHERE `email` = '$email'");
+                      if ($updateCode) {
+                        $send = sendMail($email, "Confirmation Code", $body, "Confirmation code from Royal-Educity sent to your email address");
+                        if ($send) {
+                          echo "<script>location.href='confirm.php?email=$email';</script>";
+                        } else {
+                          echo "<script>alert('An error occured. Email not sent!');</script>";
+                        }
                       }
                     }
                     ?>

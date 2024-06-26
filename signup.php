@@ -84,9 +84,14 @@ include("config.php");
 
                     <?php
                     if (isset($_POST["register"])) {
-                      $name = $_POST["name"];
-                      $email = $_POST["email"];
+                      $name = htmlspecialchars($_POST["name"]);
+                      $email = htmlspecialchars($_POST["email"]);
                       $password = $_POST["password"];
+
+                      if (str_contains($email, "+") || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        echo "<script>alert('Invalid email address')</script>";
+                        die();
+                      }
 
                       $checkExistence = mysqli_query($conn, "SELECT * FROM `users` WHERE `email` = '$email'");
                       if (mysqli_num_rows($checkExistence) < 1) {

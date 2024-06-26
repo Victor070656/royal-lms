@@ -84,11 +84,14 @@ include "../config.php";
 
                     <?php
                     if (isset($_POST["register"])) {
-                      $first = $_POST["first"];
-                      $last = $_POST["last"];
-                      $email = $_POST["email"];
-                      $password = $_POST["password"];
-
+                      $first = htmlspecialchars($_POST["first"]);
+                      $last = htmlspecialchars($_POST["last"]);
+                      $email = htmlspecialchars($_POST["email"]);
+                      $password = htmlspecialchars($_POST["password"]);
+                      if (str_contains($email, "+") || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        echo "<script>alert('Invalid email address')</script>";
+                        die();
+                      }
                       $checkExistence = mysqli_query($conn, "SELECT * FROM `teachers` WHERE `email` = '$email'");
                       if (mysqli_num_rows($checkExistence) < 1) {
                         $sql = "INSERT INTO `teachers`(`first`, `last`, `email`, `password`) VALUES ('$first','$last','$email','$password')";

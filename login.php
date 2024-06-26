@@ -69,6 +69,9 @@ session_start();
                       <input type="password" name="password" placeholder="Password" />
                     </div>
                     <div class="col-12">
+                      <a href="forgot.php" class="text-16 lh-1 fw-500 text-dark-1 mb-10">Forgot your password?</a>
+                    </div>
+                    <div class="col-12">
                       <button type="submit" name="login" id="submit" class="button -md -green-1 text-dark-1 fw-500 w-1/1">
                         Login
                       </button>
